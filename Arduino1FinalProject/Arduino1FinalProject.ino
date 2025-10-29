@@ -1,252 +1,72 @@
-// /*
-// Starting the final project Arduino 1 
-
-// Membrane switch keypad (passcodse & temperature input)
-// LCD1602 display
-// 4-digit 7-segment display
-// Active buzzer
-// Push button (PB1)
-
-// */
-// /*
-//  * CST8227 Final Project - MEGA-1
-//  * Integrated Test: Keypad + LCD + Push Button + Active Buzzer
-//  * 
-//  * Components:
-//  * - 4x4 Membrane Keypad
-//  * - LCD1602 Display
-//  * - Push Button (PB1)
-//  * - Active Buzzer
-//  * 
-//  * Test Features:
-//  * - Enter text with keypad, display on LCD
-//  * - Press push button to confirm
-//  * - Buzzer beeps when button pressed
-//  */
-
-// #include <Keypad.h>
-// #include <LiquidCrystal.h>
-
-// // ========== KEYPAD CONFIGURATION ==========
-// const byte ROWS = 4; 
-// const byte COLS = 4; 
-
-// char keys[ROWS][COLS] = {
-//   {'1','2','3','A'},
-//   {'4','5','6','B'},
-//   {'7','8','9','C'},
-//   {'*','0','#','D'}
-// };
-
-// byte rowPins[ROWS] = {22, 24, 26, 28}; 
-// byte colPins[COLS] = {30, 32, 34, 36}; 
-
-// Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
-
-// // ========== LCD CONFIGURATION ==========
-// LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
-
-// // ========== PUSH BUTTON & BUZZER ==========
-// #define PUSH_BUTTON_PIN 46
-// #define ACTIVE_BUZZER_PIN 48
-
-// // ========== GLOBAL VARIABLES ==========
-// String inputString = "";
-// const int MAX_INPUT = 16;
-// bool systemStarted = false;
-
-// void setup() {
-//   Serial.begin(9600);
-//   Serial.println("========================================");
-//   Serial.println("   MEGA-1: Full Component Test");
-//   Serial.println("========================================");
-//   Serial.println("Components: Keypad, LCD, Button, Buzzer");
-//   Serial.println();
-  
-//   // Initialize LCD
-//   lcd.begin(16, 2);
-  
-//   // Initialize Push Button (with internal pull-up)
-//   pinMode(PUSH_BUTTON_PIN, INPUT_PULLUP);
-  
-//   // Initialize Active Buzzer
-//   pinMode(ACTIVE_BUZZER_PIN, OUTPUT);
-//   digitalWrite(ACTIVE_BUZZER_PIN, LOW);
-  
-//   // Welcome message
-//   displayWelcome();
-  
-//   // Test buzzer
-//   Serial.println("Testing buzzer...");
-//   testBuzzer();
-  
-//   delay(2000);
-  
-//   // Show initial prompt
-//   showInputPrompt();
-// }
-
-// void loop() {
-//   // Check for keypad input
-//   char key = keypad.getKey();
-//   if (key) {
-//     handleKeyPress(key);
-//   }
-  
-//   // Check for push button press
-//   if (digitalRead(PUSH_BUTTON_PIN) == LOW) {  // Button pressed (active LOW)
-//     handleButtonPress();
-//     delay(300);  // Debounce delay
-//   }
-// }
-
-// // ========== FUNCTION DEFINITIONS ==========
-
-// void displayWelcome() {
-//   lcd.clear();
-//   lcd.setCursor(0, 0);
-//   lcd.print("  MEGA-1 Test");
-//   lcd.setCursor(0, 1);
-//   lcd.print("  All Systems!");
-  
-//   Serial.println("Welcome message displayed");
-// }
-
-// void showInputPrompt() {
-//   lcd.clear();
-//   lcd.setCursor(0, 0);
-//   lcd.print("Enter Input:");
-//   lcd.setCursor(0, 1);
-//   // Line 2 is for user input
-  
-//   inputString = "";
-//   Serial.println("Ready for input");
-// }
-
-// void handleKeyPress(char key) {
-//   Serial.print("Key: ");
-//   Serial.println(key);
-  
-//   // Short beep for feedback
-//   digitalWrite(ACTIVE_BUZZER_PIN, HIGH);
-//   delay(50);
-//   digitalWrite(ACTIVE_BUZZER_PIN, LOW);
-  
-//   if (key == '#') {
-//     // Confirm key
-//     showConfirmation();
-    
-//   } else if (key == '*') {
-//     // Backspace
-//     handleBackspace();
-    
-//   } else if (inputString.length() < MAX_INPUT) {
-//     // Add character
-//     inputString += key;
-//     lcd.setCursor(inputString.length() - 1, 1);
-//     lcd.print(key);
-    
-//     Serial.print("Input: ");
-//     Serial.println(inputString);
-//   }
-// }
-
-// void handleBackspace() {
-//   if (inputString.length() > 0) {
-//     inputString.remove(inputString.length() - 1);
-    
-//     // Redraw line
-//     lcd.setCursor(0, 1);
-//     lcd.print("                ");  // Clear line
-//     lcd.setCursor(0, 1);
-//     lcd.print(inputString);
-    
-//     Serial.print("Backspace - Input: ");
-//     Serial.println(inputString);
-//   }
-// }
-
-// void showConfirmation() {
-//   lcd.clear();
-//   lcd.setCursor(0, 0);
-//   lcd.print("You entered:");
-//   lcd.setCursor(0, 1);
-  
-//   if (inputString.length() > 0) {
-//     lcd.print(inputString);
-//   } else {
-//     lcd.print("(nothing)");
-//   }
-  
-//   // Long beep
-//   digitalWrite(ACTIVE_BUZZER_PIN, HIGH);
-//   delay(500);
-//   digitalWrite(ACTIVE_BUZZER_PIN, LOW);
-  
-//   Serial.print("Confirmed: ");
-//   Serial.println(inputString);
-  
-//   delay(2000);
-//   showInputPrompt();
-// }
-
-// void handleButtonPress() {
-//   Serial.println("PUSH BUTTON PRESSED!");
-  
-//   lcd.clear();
-//   lcd.setCursor(0, 0);
-//   lcd.print("Button Pressed!");
-//   lcd.setCursor(0, 1);
-//   lcd.print("System Started");
-  
-//   // Beep pattern (3 short beeps)
-//   for (int i = 0; i < 3; i++) {
-//     digitalWrite(ACTIVE_BUZZER_PIN, HIGH);
-//     delay(100);
-//     digitalWrite(ACTIVE_BUZZER_PIN, LOW);
-//     delay(100);
-//   }
-  
-//   systemStarted = true;
-  
-//   delay(2000);
-  
-//   lcd.clear();
-//   lcd.setCursor(0, 0);
-//   lcd.print("System: RUNNING");
-//   lcd.setCursor(0, 1);
-//   lcd.print("Press keys...");
-  
-//   Serial.println("System is now running!");
-// }
-
-// void testBuzzer() {
-//   // Short beep to test buzzer
-//   digitalWrite(ACTIVE_BUZZER_PIN, HIGH);
-//   delay(200);
-//   digitalWrite(ACTIVE_BUZZER_PIN, LOW);
-//   delay(200);
-//   digitalWrite(ACTIVE_BUZZER_PIN, HIGH);
-//   delay(200);
-//   digitalWrite(ACTIVE_BUZZER_PIN, LOW);
-  
-//   Serial.println("Buzzer test complete");
-// }
-
 /*
- * CST8227 Final Project - MEGA-1
- * 5641AS 4-Digit 7-Segment Display - Direct Connection
+Starting the final project Arduino 1 
+
+Membrane switch keypad (passcodse & temperature input)
+LCD1602 display
+4-digit 7-segment display
+Active buzzer
+Push button (PB1)
+
+ * CST8227 Final Project - MEGA-1 (Master Controller)
+ * Multi-Sensor Monitoring and Control System
  * 
- * Hardware:
- * - 5641AS Common Cathode 4-digit display
- * - 8× 220Ω resistors for segments
+ * COMPONENTS:
+ * - 4x4 Membrane Keypad (Pins 22,24,26,28,30,32,34,36)
+ * - LCD1602 Display (Pins 2,3,4,5,11,12)
+ * - 5641AS 7-Segment Display (Segments: 23,25,27,29,31,33,35,37 | Digits: 38,40,42,44)
+ * - Active Buzzer (Pin 48)
+ * - Push Button PB1 (Pin 46)
+ * - I2C Communication (SDA=20, SCL=21)
  * 
- * Segment Pins: 6-10, 13-15 (through 220Ω resistors)
- * Digit Pins: 38, 40, 42, 44 (direct connection)
+ * FUNCTIONALITY:
+ * 1. Passcode entry (double confirmation)
+ * 2. Temperature preference setting
+ * 3. Display passcode on 7-segment (flashing)
+ * 4. Push button to start system
+ * 5. Send temperature to MEGA-2 via I2C
  */
 
-// ========== PIN DEFINITIONS ==========
-// Segment pins (A-G + DP) - connect through 220Ω resistors
+
+/*
+ * CST8227 Final Project - MEGA-1 (Master Controller)
+ * Multi-Sensor Monitoring and Control System
+ * 
+ * COMPONENTS:
+ * - 4x4 Membrane Keypad (Pins 22,24,26,28,30,32,34,36)
+ * - LCD1602 Display (Pins 2,3,4,5,11,12)
+ * - 5641AS 7-Segment Display (Segments: 23,25,27,29,31,33,35,37 | Digits: 38,40,42,44)
+ * - Active Buzzer (Pin 48)
+ * - Push Button PB1 (Pin 46)
+ * - I2C Communication (SDA=20, SCL=21)
+ */
+
+#include <Keypad.h>
+#include <LiquidCrystal.h>
+#include <Wire.h>
+
+// ========== I2C CONFIGURATION ==========
+#define MEGA2_I2C_ADDRESS 8
+
+// ========== KEYPAD CONFIGURATION ==========
+const byte ROWS = 4; 
+const byte COLS = 4; 
+
+char keys[ROWS][COLS] = {
+  {'1','2','3','A'},
+  {'4','5','6','B'},
+  {'7','8','9','C'},
+  {'*','0','#','D'}
+};
+
+byte rowPins[ROWS] = {22, 24, 26, 28}; 
+byte colPins[COLS] = {30, 32, 34, 36}; 
+
+Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
+
+// ========== LCD CONFIGURATION ==========
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+// ========== 7-SEGMENT DISPLAY CONFIGURATION ==========
 #define SEG_A  23
 #define SEG_B  25
 #define SEG_C  27
@@ -256,22 +76,14 @@
 #define SEG_G  35
 #define SEG_DP 37
 
-// Digit control pins (D1-D4) - direct connection, no resistors
 #define DIGIT_1 38
 #define DIGIT_2 40
 #define DIGIT_3 42
 #define DIGIT_4 44
 
-// ========== SEGMENT PATTERNS ==========
-// Common Cathode: HIGH = ON, LOW = OFF
-// Array index = digit to display (0-9)
-// Bit order: DP G F E D C B A
-
 const byte SEGMENT_PINS[] = {SEG_A, SEG_B, SEG_C, SEG_D, SEG_E, SEG_F, SEG_G, SEG_DP};
 const byte DIGIT_PINS[] = {DIGIT_1, DIGIT_2, DIGIT_3, DIGIT_4};
 
-// Segment patterns for digits 0-9
-// Format: {A, B, C, D, E, F, G, DP}
 const byte DIGIT_PATTERNS[10][8] = {
   {1,1,1,1,1,1,0,0},  // 0
   {0,1,1,0,0,0,0,0},  // 1
@@ -285,167 +97,448 @@ const byte DIGIT_PATTERNS[10][8] = {
   {1,1,1,1,0,1,1,0}   // 9
 };
 
+// ========== PUSH BUTTON & BUZZER ==========
+#define PUSH_BUTTON_PIN 46
+#define ACTIVE_BUZZER_PIN 48
+
 // ========== GLOBAL VARIABLES ==========
-int displayNumber = 0;
-unsigned long lastUpdate = 0;
-const int UPDATE_INTERVAL = 1000;  // Update every 1 second
+String passcode1 = "";
+String passcode2 = "";
+String finalPasscode = "";
+String tempInput = "";
+float preferredTempC = 0.0;
+float preferredTempF = 0.0;
 
-// Current digits to display
-byte digit[4] = {0, 0, 0, 0};
+bool display7SegmentActive = false;
 
+enum SystemState {
+  PASSCODE_ENTRY_1,
+  PASSCODE_ENTRY_2,
+  TEMP_SETTING,
+  WAITING_FOR_START,
+  SYSTEM_RUNNING
+};
+
+SystemState currentState = PASSCODE_ENTRY_1;
+
+// ========== SETUP ==========
 void setup() {
   Serial.begin(9600);
-  Serial.println("========================================");
-  Serial.println("  5641AS 7-Segment Display Test");
-  Serial.println("  Direct Connection Method");
-  Serial.println("========================================");
-  Serial.println();
+  Serial.println("CST8227 Final Project - MEGA-1");
   
-  // Initialize segment pins as outputs
+  // Initialize I2C as Master
+  Wire.begin();
+  
+  // Initialize LCD
+  lcd.begin(16, 2);
+  
+  // Initialize 7-segment display
   for (int i = 0; i < 8; i++) {
     pinMode(SEGMENT_PINS[i], OUTPUT);
-    digitalWrite(SEGMENT_PINS[i], LOW);  // All segments OFF
+    digitalWrite(SEGMENT_PINS[i], LOW);
   }
-  
-  // Initialize digit pins as outputs
   for (int i = 0; i < 4; i++) {
     pinMode(DIGIT_PINS[i], OUTPUT);
-    digitalWrite(DIGIT_PINS[i], HIGH);  // All digits OFF (HIGH = inactive for common cathode)
+    digitalWrite(DIGIT_PINS[i], HIGH);
   }
   
-  Serial.println("Hardware initialized!");
-  Serial.println();
+  // Initialize Push Button
+  pinMode(PUSH_BUTTON_PIN, INPUT_PULLUP);
   
-  // Test: Display "8888" for 2 seconds
-  Serial.println("Test 1: Displaying 8888...");
-  testAllSegments();
+  // Initialize Buzzer
+  pinMode(ACTIVE_BUZZER_PIN, OUTPUT);
+  digitalWrite(ACTIVE_BUZZER_PIN, LOW);
   
-  Serial.println("Test 2: Counting from 0000 to 9999");
-  Serial.println("Starting count...");
-  Serial.println();
+  // Welcome message
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("  MEGA-1 Ready");
+  lcd.setCursor(0, 1);
+  lcd.print(" CST8227 Project");
+  delay(2000);
+  
+  // Start passcode entry
+  promptPasscodeEntry1();
 }
 
+// ========== MAIN LOOP ==========
 void loop() {
-  // Update the displayed number every second
-  if (millis() - lastUpdate >= UPDATE_INTERVAL) {
-    displayNumber++;
-    if (displayNumber > 9999) {
-      displayNumber = 0;
-    }
-    
-    // Break number into individual digits
-    digit[0] = (displayNumber / 1000) % 10;  // Thousands
-    digit[1] = (displayNumber / 100) % 10;   // Hundreds
-    digit[2] = (displayNumber / 10) % 10;    // Tens
-    digit[3] = displayNumber % 10;           // Ones
-    
-    Serial.print("Displaying: ");
-    Serial.println(displayNumber);
-    
-    lastUpdate = millis();
+  switch (currentState) {
+    case PASSCODE_ENTRY_1:
+      handlePasscodeEntry1();
+      break;
+      
+    case PASSCODE_ENTRY_2:
+      handlePasscodeEntry2();
+      break;
+      
+    case TEMP_SETTING:
+      handleTempSetting();
+      break;
+      
+    case WAITING_FOR_START:
+      handleWaitingForStart();
+      break;
+      
+    case SYSTEM_RUNNING:
+      handleSystemRunning();
+      break;
   }
   
-  // Multiplexing: rapidly cycle through all 4 digits
-  // This happens continuously and very fast!
-  for (int d = 0; d < 4; d++) {
-    displayDigit(d, digit[d]);
-    delay(2);  // 2ms per digit = 8ms total cycle = 125 Hz refresh rate
+  // Only update 7-segment if active
+  if (display7SegmentActive) {
+    display7SegmentNumber(finalPasscode.toInt());
+  } else {
+    clearDisplay();
   }
 }
 
-// ========== FUNCTION DEFINITIONS ==========
+// ========== STATE HANDLERS ==========
 
-/*
- * Display a specific digit at a specific position
- * digitPosition: 0-3 (which digit to light up)
- * number: 0-9 (what number to show)
- */
+void handlePasscodeEntry1() {
+  char key = keypad.getKey();
+  
+  if (key) {
+    beep(50);
+    
+    if (key == '#') {
+      if (passcode1.length() == 4) {
+        Serial.print("First passcode: ");
+        Serial.println(passcode1);
+        currentState = PASSCODE_ENTRY_2;
+        promptPasscodeEntry2();
+      } else {
+        showError("Need 4 digits!");
+        passcode1 = "";
+        promptPasscodeEntry1();
+      }
+    } else if (key == '*') {
+      if (passcode1.length() > 0) {
+        passcode1.remove(passcode1.length() - 1);
+        updatePasscodeDisplay(passcode1);
+      }
+    } else if (key >= '0' && key <= '9') {
+      if (passcode1.length() < 4) {
+        passcode1 += key;
+        updatePasscodeDisplay(passcode1);
+      }
+    }
+  }
+}
+
+void handlePasscodeEntry2() {
+  char key = keypad.getKey();
+  
+  if (key) {
+    beep(50);
+    
+    if (key == '#') {
+      if (passcode2.length() == 4) {
+        Serial.print("Second passcode: ");
+        Serial.println(passcode2);
+        
+        if (passcode1 == passcode2) {
+          finalPasscode = passcode1;
+          Serial.println("Passcodes match!");
+          
+          // Flash passcode on 7-segment
+          flashPasscodeOn7Segment();
+          
+          // Move to temperature setting
+          currentState = TEMP_SETTING;
+          promptTempSetting();
+        } else {
+          showError("Don't Match!");
+          beep(1000);
+          passcode1 = "";
+          passcode2 = "";
+          currentState = PASSCODE_ENTRY_1;
+          promptPasscodeEntry1();
+        }
+      } else {
+        showError("Need 4 digits!");
+        passcode2 = "";
+        promptPasscodeEntry2();
+      }
+    } else if (key == '*') {
+      if (passcode2.length() > 0) {
+        passcode2.remove(passcode2.length() - 1);
+        updatePasscodeDisplay(passcode2);
+      }
+    } else if (key >= '0' && key <= '9') {
+      if (passcode2.length() < 4) {
+        passcode2 += key;
+        updatePasscodeDisplay(passcode2);
+      }
+    }
+  }
+}
+
+void handleTempSetting() {
+  char key = keypad.getKey();
+  
+  if (key) {
+    beep(50);
+    
+    if (key == '#') {
+      if (tempInput.length() == 3) {
+        int tempValue = tempInput.toInt();
+        preferredTempC = tempValue / 10.0;
+        preferredTempF = (preferredTempC * 9.0 / 5.0) + 32.0;
+        
+        Serial.print("Temp set: ");
+        Serial.print(preferredTempC);
+        Serial.print("C / ");
+        Serial.print(preferredTempF);
+        Serial.println("F");
+        
+        displayTemperature();
+        delay(3000);
+        
+        currentState = WAITING_FOR_START;
+        promptPushButton();
+      } else {
+        showError("Need 3 digits!");
+        tempInput = "";
+        promptTempSetting();
+      }
+    } else if (key == '*') {
+      if (tempInput.length() > 0) {
+        tempInput.remove(tempInput.length() - 1);
+        updateTempDisplay(tempInput);
+      }
+    } else if (key >= '0' && key <= '9') {
+      if (tempInput.length() < 3) {
+        tempInput += key;
+        updateTempDisplay(tempInput);
+      }
+    }
+  }
+}
+
+void handleWaitingForStart() {
+  if (digitalRead(PUSH_BUTTON_PIN) == LOW) {
+    Serial.println("System starting!");
+    
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("System is ON");
+    
+    // 3 beeps
+    for (int i = 0; i < 3; i++) {
+      beep(100);
+      delay(100);
+    }
+    
+    // Send temperature to MEGA-2
+    sendTemperatureToMega2();
+    
+    delay(2000);
+    currentState = SYSTEM_RUNNING;
+    display7SegmentActive = true;
+    
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("System Running");
+    lcd.setCursor(0, 1);
+    lcd.print("Temp:");
+    lcd.print(preferredTempC, 1);
+    lcd.print("C");
+    
+    Serial.println("System running!");
+  }
+}
+
+void handleSystemRunning() {
+  // System running - 7-segment shows passcode continuously
+}
+
+// ========== DISPLAY FUNCTIONS ==========
+
+void promptPasscodeEntry1() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Enter Passcode:");
+  lcd.setCursor(0, 1);
+  lcd.print("(4 digits)");
+}
+
+void promptPasscodeEntry2() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Re-enter Code:");
+  lcd.setCursor(0, 1);
+  lcd.print("(confirm)");
+}
+
+void updatePasscodeDisplay(String passcode) {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  if (currentState == PASSCODE_ENTRY_1) {
+    lcd.print("Enter Passcode:");
+  } else {
+    lcd.print("Re-enter Code:");
+  }
+  lcd.setCursor(0, 1);
+  for (int i = 0; i < passcode.length(); i++) {
+    lcd.print("*");
+  }
+}
+
+void promptTempSetting() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Set Temp (3dig):");
+  lcd.setCursor(0, 1);
+  lcd.print("e.g. 235=23.5C");
+  delay(2000);
+  
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Enter Temp:");
+  lcd.setCursor(0, 1);
+}
+
+void updateTempDisplay(String temp) {
+  lcd.setCursor(0, 1);
+  lcd.print("                ");
+  lcd.setCursor(0, 1);
+  lcd.print(temp);
+  
+  if (temp.length() >= 2) {
+    lcd.print(" (");
+    lcd.print(temp.substring(0, 2));
+    lcd.print(".");
+    if (temp.length() == 3) {
+      lcd.print(temp.substring(2));
+    } else {
+      lcd.print("_");
+    }
+    lcd.print("C)");
+  }
+}
+
+void displayTemperature() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Temp Set:");
+  lcd.setCursor(0, 1);
+  lcd.print(preferredTempC, 1);
+  lcd.print("C / ");
+  lcd.print(preferredTempF, 1);
+  lcd.print("F");
+}
+
+void promptPushButton() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Press PB1 to");
+  lcd.setCursor(0, 1);
+  lcd.print("Start System");
+}
+
+void showError(String message) {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(message);
+  delay(2000);
+}
+
+// ========== 7-SEGMENT FUNCTIONS ==========
+
 void displayDigit(byte digitPosition, byte number) {
-  // Turn off all digits first
-  for (int i = 0; i < 4; i++) {
-    digitalWrite(DIGIT_PINS[i], HIGH);  // HIGH = OFF for common cathode
-  }
-  
-  // Set the segment pattern for this number
-  for (int seg = 0; seg < 8; seg++) {
-    digitalWrite(SEGMENT_PINS[seg], DIGIT_PATTERNS[number][seg]);
-  }
-  
-  // Turn on the selected digit
-  digitalWrite(DIGIT_PINS[digitPosition], LOW);  // LOW = ON for common cathode
-}
-
-/*
- * Test function: Display "8888" for 2 seconds
- */
-void testAllSegments() {
-  unsigned long startTime = millis();
-  
-  while (millis() - startTime < 2000) {  // Run for 2 seconds
-    for (int d = 0; d < 4; d++) {
-      displayDigit(d, 8);  // Display "8" on each digit
-      delay(2);
-    }
-  }
-  
-  Serial.println("All segments test complete!");
-  Serial.println();
-}
-
-/*
- * Display a 4-digit number (with leading zeros)
- * number: 0-9999
- * duration: how long to display in milliseconds
- */
-void displayNumberFor(int number, int duration) {
-  // Break into digits
-  byte d1 = (number / 1000) % 10;
-  byte d2 = (number / 100) % 10;
-  byte d3 = (number / 10) % 10;
-  byte d4 = number % 10;
-  
-  unsigned long startTime = millis();
-  
-  while (millis() - startTime < duration) {
-    displayDigit(0, d1);
-    delay(2);
-    displayDigit(1, d2);
-    delay(2);
-    displayDigit(2, d3);
-    delay(2);
-    displayDigit(3, d4);
-    delay(2);
-  }
-}
-
-/*
- * Clear the display (all segments off)
- */
-void clearDisplay() {
-  // Turn off all digits
   for (int i = 0; i < 4; i++) {
     digitalWrite(DIGIT_PINS[i], HIGH);
   }
   
-  // Turn off all segments
+  for (int seg = 0; seg < 8; seg++) {
+    digitalWrite(SEGMENT_PINS[seg], DIGIT_PATTERNS[number][seg]);
+  }
+  
+  digitalWrite(DIGIT_PINS[digitPosition], LOW);
+}
+
+void display7SegmentNumber(int number) {
+  byte digits[4];
+  digits[0] = (number / 1000) % 10;
+  digits[1] = (number / 100) % 10;
+  digits[2] = (number / 10) % 10;
+  digits[3] = number % 10;
+  
+  for (int d = 0; d < 4; d++) {
+    displayDigit(d, digits[d]);
+    delayMicroseconds(2000);
+  }
+}
+
+void flashPasscodeOn7Segment() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Passcode OK!");
+  
+  int passcodeNum = finalPasscode.toInt();
+  
+  // Flash 5 times with 1 second interval
+  for (int flash = 0; flash < 5; flash++) {
+    // ON for 500ms
+    unsigned long startTime = millis();
+    while (millis() - startTime < 500) {
+      display7SegmentNumber(passcodeNum);
+    }
+    
+    // OFF for 1000ms
+    clearDisplay();
+    delay(1000);
+  }
+  
+  // Final display for 1 second
+  unsigned long startTime = millis();
+  while (millis() - startTime < 1000) {
+    display7SegmentNumber(passcodeNum);
+  }
+  
+  // Activate buzzer for 1 second
+  digitalWrite(ACTIVE_BUZZER_PIN, HIGH);
+  delay(1000);
+  digitalWrite(ACTIVE_BUZZER_PIN, LOW);
+  
+  clearDisplay();
+}
+
+void clearDisplay() {
+  for (int i = 0; i < 4; i++) {
+    digitalWrite(DIGIT_PINS[i], HIGH);
+  }
   for (int i = 0; i < 8; i++) {
     digitalWrite(SEGMENT_PINS[i], LOW);
   }
 }
 
-/*
- * Flash the display on and off
- * times: number of flashes
- * onTime: milliseconds display is ON
- * offTime: milliseconds display is OFF
- */
-void flashDisplay(int number, int times, int onTime, int offTime) {
-  for (int i = 0; i < times; i++) {
-    // Display ON
-    displayNumberFor(number, onTime);
-    
-    // Display OFF
-    clearDisplay();
-    delay(offTime);
+// ========== I2C COMMUNICATION ==========
+
+void sendTemperatureToMega2() {
+  Serial.print("Sending to MEGA-2: ");
+  Serial.print(preferredTempC);
+  Serial.println("C");
+  
+  Wire.beginTransmission(MEGA2_I2C_ADDRESS);
+  int tempValue = (int)(preferredTempC * 10);
+  Wire.write(highByte(tempValue));
+  Wire.write(lowByte(tempValue));
+  byte error = Wire.endTransmission();
+  
+  if (error == 0) {
+    Serial.println("Sent successfully!");
+  } else {
+    Serial.print("I2C error: ");
+    Serial.println(error);
   }
+}
+
+// ========== BUZZER ==========
+
+void beep(int duration) {
+  digitalWrite(ACTIVE_BUZZER_PIN, HIGH);
+  delay(duration);
+  digitalWrite(ACTIVE_BUZZER_PIN, LOW);
 }
