@@ -1,0 +1,617 @@
+[
+    {
+        "id": "cst8227_http_flow",
+        "type": "tab",
+        "label": "CST8227 Dashboard (HTTP)",
+        "disabled": false,
+        "info": "Alternative dashboard using HTTP polling - No MQTT broker required!"
+    },
+    {
+        "id": "inject_poll",
+        "type": "inject",
+        "z": "cst8227_http_flow",
+        "name": "Poll Every 2 Seconds",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "1",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 100,
+        "wires": [
+            [
+                "http_request"
+            ]
+        ]
+    },
+    {
+        "id": "http_request",
+        "type": "http request",
+        "z": "cst8227_http_flow",
+        "name": "Get ESP32 Data",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://10.62.149.19/api/data",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 400,
+        "y": 100,
+        "wires": [
+            [
+                "parse_data_http"
+            ]
+        ]
+    },
+    {
+        "id": "parse_data_http",
+        "type": "function",
+        "z": "cst8227_http_flow",
+        "name": "Parse Sensor Data",
+        "func": "if (!msg.payload) {\n    return null;\n}\n\nvar data = msg.payload;\n\n// Store in flow context\nflow.set('currentData', data);\n\n// Create output messages\nvar temp = { payload: data.currentTemp || 0, topic: 'Current Temp' };\nvar prefTemp = { payload: data.prefTemp || 0, topic: 'Preferred Temp' };\nvar humidity = { payload: data.humidity || 0, topic: 'Humidity' };\nvar motor = { payload: data.motorStatus || 'OFF' };\nvar night = { payload: data.nightMode || 'NO' };\nvar motion = { payload: data.motionStatus || 'NO' };\nvar passcode = { payload: data.passcode || '----' };\nvar connected = { payload: data.connected ? 'Online' : 'Offline' };\nvar rssi = { payload: (data.rssi || '--') + ' dBm' };\n\nreturn [temp, prefTemp, humidity, motor, night, motion, passcode, connected, rssi];",
+        "outputs": 9,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 100,
+        "wires": [
+            [
+                "gauge_temp_http",
+                "chart_temp_http"
+            ],
+            [
+                "gauge_pref_http"
+            ],
+            [
+                "gauge_hum_http",
+                "chart_hum_http"
+            ],
+            [
+                "text_motor_http",
+                "led_motor_http"
+            ],
+            [
+                "text_night_http",
+                "led_night_http"
+            ],
+            [
+                "text_motion_http",
+                "led_motion_http"
+            ],
+            [
+                "text_passcode_http"
+            ],
+            [
+                "text_status_http"
+            ],
+            [
+                "text_rssi_http"
+            ]
+        ]
+    },
+    {
+        "id": "gauge_temp_http",
+        "type": "ui_gauge",
+        "z": "cst8227_http_flow",
+        "name": "Current Temp Gauge",
+        "group": "group_temp_http",
+        "order": 1,
+        "width": "6",
+        "height": "4",
+        "gtype": "gage",
+        "title": "Current Temperature",
+        "label": "°C",
+        "format": "{{value | number:1}}",
+        "min": 0,
+        "max": "50",
+        "colors": [
+            "#00b3ff",
+            "#10b981",
+            "#ef4444"
+        ],
+        "seg1": "20",
+        "seg2": "30",
+        "diff": false,
+        "className": "",
+        "x": 920,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "gauge_pref_http",
+        "type": "ui_gauge",
+        "z": "cst8227_http_flow",
+        "name": "Preferred Temp Gauge",
+        "group": "group_temp_http",
+        "order": 2,
+        "width": "6",
+        "height": "4",
+        "gtype": "donut",
+        "title": "Preferred Temperature",
+        "label": "°C",
+        "format": "{{value | number:1}}",
+        "min": 0,
+        "max": "40",
+        "colors": [
+            "#6366f1",
+            "#8b5cf6",
+            "#a855f7"
+        ],
+        "seg1": "15",
+        "seg2": "25",
+        "diff": false,
+        "className": "",
+        "x": 920,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "gauge_hum_http",
+        "type": "ui_gauge",
+        "z": "cst8227_http_flow",
+        "name": "Humidity Gauge",
+        "group": "group_env_http",
+        "order": 1,
+        "width": "6",
+        "height": "4",
+        "gtype": "wave",
+        "title": "Humidity",
+        "label": "%",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b3ff",
+            "#0073e6",
+            "#0047ab"
+        ],
+        "seg1": "30",
+        "seg2": "70",
+        "diff": false,
+        "className": "",
+        "x": 900,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "text_motor_http",
+        "type": "ui_text",
+        "z": "cst8227_http_flow",
+        "group": "group_status_http",
+        "order": 1,
+        "width": "3",
+        "height": "1",
+        "name": "Motor Status",
+        "label": "🌀 Fan Motor",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 910,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "text_night_http",
+        "type": "ui_text",
+        "z": "cst8227_http_flow",
+        "group": "group_status_http",
+        "order": 2,
+        "width": "3",
+        "height": "1",
+        "name": "Night Mode",
+        "label": "🌙 Night Mode",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 910,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "text_motion_http",
+        "type": "ui_text",
+        "z": "cst8227_http_flow",
+        "group": "group_status_http",
+        "order": 3,
+        "width": "3",
+        "height": "1",
+        "name": "Motion",
+        "label": "👁️ Motion",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 900,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "text_passcode_http",
+        "type": "ui_text",
+        "z": "cst8227_http_flow",
+        "group": "group_header_http",
+        "order": 1,
+        "width": "4",
+        "height": "1",
+        "name": "Passcode",
+        "label": "🔐 Passcode",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "Courier New",
+        "fontSize": 24,
+        "color": "#6366f1",
+        "x": 900,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "text_status_http",
+        "type": "ui_text",
+        "z": "cst8227_http_flow",
+        "group": "group_header_http",
+        "order": 2,
+        "width": "4",
+        "height": "1",
+        "name": "Status",
+        "label": "📡 Connection",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#10b981",
+        "x": 890,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "text_rssi_http",
+        "type": "ui_text",
+        "z": "cst8227_http_flow",
+        "group": "group_header_http",
+        "order": 3,
+        "width": "4",
+        "height": "1",
+        "name": "Signal",
+        "label": "📶 Signal",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 880,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "chart_temp_http",
+        "type": "ui_chart",
+        "z": "cst8227_http_flow",
+        "name": "Temperature Chart",
+        "group": "group_charts_http",
+        "order": 1,
+        "width": "12",
+        "height": "5",
+        "label": "Temperature History",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "bezier",
+        "nodata": "Waiting for data...",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "50",
+        "removeOlder": "5",
+        "removeOlderPoints": "100",
+        "removeOlderUnit": "60",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#06b6d4",
+            "#6366f1",
+            "#f59e0b",
+            "#10b981",
+            "#ef4444",
+            "#8b5cf6"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 930,
+        "y": 520,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "chart_hum_http",
+        "type": "ui_chart",
+        "z": "cst8227_http_flow",
+        "name": "Humidity Chart",
+        "group": "group_charts_http",
+        "order": 2,
+        "width": "12",
+        "height": "4",
+        "label": "Humidity History",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "bezier",
+        "nodata": "Waiting for data...",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "100",
+        "removeOlder": "5",
+        "removeOlderPoints": "100",
+        "removeOlderUnit": "60",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#8b5cf6",
+            "#00b3ff",
+            "#0073e6",
+            "#0047ab",
+            "#ef4444",
+            "#f59e0b"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 920,
+        "y": 560,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "catch_errors",
+        "type": "catch",
+        "z": "cst8227_http_flow",
+        "name": "Catch HTTP Errors",
+        "scope": [
+            "http_request"
+        ],
+        "uncaught": false,
+        "x": 150,
+        "y": 200,
+        "wires": [
+            [
+                "handle_error"
+            ]
+        ]
+    },
+    {
+        "id": "handle_error",
+        "type": "function",
+        "z": "cst8227_http_flow",
+        "name": "Handle Connection Error",
+        "func": "// Set offline status when ESP32 is unreachable\nvar status = { payload: 'Offline - Check ESP32' };\nvar rssi = { payload: '-- dBm' };\n\nreturn [null, null, null, null, null, null, null, status, rssi];",
+        "outputs": 9,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 200,
+        "wires": [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [
+                "text_status_http"
+            ],
+            [
+                "text_rssi_http"
+            ]
+        ]
+    },
+    {
+        "id": "comment_instructions",
+        "type": "comment",
+        "z": "cst8227_http_flow",
+        "name": "📌 SETUP: Replace ESP32_IP_HERE with the ESP32's IP address",
+        "info": "How to use this flow:\n\n1. Find your ESP32's IP address from the Serial Monitor\n2. Double-click the 'Get ESP32 Data' HTTP node\n3. Replace 'ESP32_IP_HERE' with the actual IP (e.g., 192.168.43.100)\n4. Click Deploy\n5. Open http://localhost:1880/ui to see the dashboard\n\nThis HTTP-based approach is simpler as it doesn't require an MQTT broker.",
+        "x": 270,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "led_motor_http",
+        "type": "ui_led",
+        "z": "cst8227_http_flow",
+        "order": 4,
+        "group": "group_status_http",
+        "width": "1",
+        "height": "1",
+        "label": "",
+        "labelPlacement": "left",
+        "labelAlignment": "left",
+        "colorForValue": [
+            {
+                "color": "#444444",
+                "value": "OFF",
+                "valueType": "str"
+            },
+            {
+                "color": "#10b981",
+                "value": "ON",
+                "valueType": "str"
+            }
+        ],
+        "allowColorForValueInMessage": false,
+        "shape": "circle",
+        "showGlow": true,
+        "name": "Motor LED",
+        "x": 900,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "led_night_http",
+        "type": "ui_led",
+        "z": "cst8227_http_flow",
+        "order": 5,
+        "group": "group_status_http",
+        "width": "1",
+        "height": "1",
+        "label": "",
+        "labelPlacement": "left",
+        "labelAlignment": "left",
+        "colorForValue": [
+            {
+                "color": "#444444",
+                "value": "NO",
+                "valueType": "str"
+            },
+            {
+                "color": "#f59e0b",
+                "value": "YES",
+                "valueType": "str"
+            }
+        ],
+        "allowColorForValueInMessage": false,
+        "shape": "circle",
+        "showGlow": true,
+        "name": "Night LED",
+        "x": 900,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "led_motion_http",
+        "type": "ui_led",
+        "z": "cst8227_http_flow",
+        "order": 6,
+        "group": "group_status_http",
+        "width": "1",
+        "height": "1",
+        "label": "",
+        "labelPlacement": "left",
+        "labelAlignment": "left",
+        "colorForValue": [
+            {
+                "color": "#444444",
+                "value": "NO",
+                "valueType": "str"
+            },
+            {
+                "color": "#ef4444",
+                "value": "YES",
+                "valueType": "str"
+            }
+        ],
+        "allowColorForValueInMessage": false,
+        "shape": "circle",
+        "showGlow": true,
+        "name": "Motion LED",
+        "x": 900,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "group_temp_http",
+        "type": "ui_group",
+        "name": "Temperature",
+        "tab": "dashboard_tab_http",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "group_env_http",
+        "type": "ui_group",
+        "name": "Environment",
+        "tab": "dashboard_tab_http",
+        "order": 3,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "group_status_http",
+        "type": "ui_group",
+        "name": "System Controls",
+        "tab": "dashboard_tab_http",
+        "order": 4,
+        "disp": true,
+        "width": "12",
+        "collapse": false
+    },
+    {
+        "id": "group_header_http",
+        "type": "ui_group",
+        "name": "System Status",
+        "tab": "dashboard_tab_http",
+        "order": 1,
+        "disp": true,
+        "width": "12",
+        "collapse": false
+    },
+    {
+        "id": "group_charts_http",
+        "type": "ui_group",
+        "name": "History Charts",
+        "tab": "dashboard_tab_http",
+        "order": 5,
+        "disp": true,
+        "width": "12",
+        "collapse": false
+    },
+    {
+        "id": "dashboard_tab_http",
+        "type": "ui_tab",
+        "name": "CST8227 Monitor",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "a3a27dcffbf111c1",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6",
+            "node-red-contrib-ui-led": "0.4.11"
+        }
+    }
+]
