@@ -1,12 +1,11 @@
 // ============================================
 // CST8227 FINAL PROJECT - MEGA-1 (MASTER)
 // ============================================
-// Real implementation - NO SIMULATION
 // Features:
 // 1. Passcode entry via keypad (4x4 membrane)
 // 2. Preferred temperature setting
 // 3. I2C communication with MEGA-2
-// 4. ESP32 communication (optional)
+// 4. ESP32 communication
 // 5. 7-segment display for passcode flashing
 // 6. LCD display for user feedback
 
@@ -658,3 +657,4 @@ void beep(int duration) {
   delay(duration);
   digitalWrite(ACTIVE_BUZZER_PIN, LOW);
 }
+

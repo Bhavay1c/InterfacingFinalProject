@@ -52,7 +52,7 @@ DHT dht(DHT_PIN, DHT11);
 // ---------------------------
 // GLOBAL VARIABLES
 // ---------------------------
-float preferredTemp = 22.0;  // Default, will be set via I2C from MEGA-1
+float preferredTemp = 22.0;  // Default and night mode, will be set via I2C from MEGA-1
 float tempC = 0;
 float hum = 0;
 long distCM = 999;
@@ -105,7 +105,7 @@ int birthdaySong[][2] = {
 };
 int songLength = sizeof(birthdaySong) / sizeof(birthdaySong[0]);
 
-// 7-segment digit patterns (GFEDCBA + DP) - USING WORKING PATTERN
+// 7-segment digit patterns (GFEDCBA + DP) - 
 byte patterns[10] = {
   0b00111111, // 0
   0b00000110, // 1
@@ -528,7 +528,7 @@ void loop() {
   if (millis() - lastSerial >= 1000) {
     lastSerial = millis();
 
-    // Format: JSON-like output for Node-RED
+    // Format: JSON-like output for Node-RED passed to arduino1 which sends to esp32.
     Serial.print("{\"temp\":");
     Serial.print(tempC, 1);
     Serial.print(",\"humidity\":");
